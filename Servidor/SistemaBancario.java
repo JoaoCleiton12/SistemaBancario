@@ -26,7 +26,6 @@ public class SistemaBancario {
     //Autenticar usuários (User Story 1)
     public boolean autenticarUser(String numConta, String senha){
 
-        
         if (listaContas.containsKey(numConta)) {
             return listaContas.get(numConta).autenticar(senha);
         }
@@ -145,14 +144,7 @@ public class SistemaBancario {
     }
 
     //Autenticação de mensagens (User Story 8)
-    public boolean autenticarMensagens(String mensagenEncriptada){
-        //String mensagemDesencriptada = encriptar.decifrar(mensagenEncriptada);
-
-        String[] array = mensagemDesencriptada.split(" ");
-
-        String conta = array[0];
-        String senha = array[1];
-
+    public boolean autenticarMensagens(String conta, String senha){
         return autenticarUser(conta, senha);
     }
     
