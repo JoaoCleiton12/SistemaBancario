@@ -1,6 +1,7 @@
 package Cliente;
 import Criptografia.CriptoRSA;
 import Criptografia.CriptografiaAES;
+import Criptografia.ImplSHA3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -25,6 +26,10 @@ public class Cliente implements Runnable{
     private PrintStream saida;
     private ObjectInputStream in;
     private DataInputStream inChaveAES;
+
+    private String algoritmoHash;
+    private String resultadoDoHash;
+    private String hashCifradaComRSA;
 
     private CriptografiaAES criptoAES;
 
@@ -52,7 +57,11 @@ public class Cliente implements Runnable{
             //ver video Mini Tutorial Servidor de Eco Multithread em Java
             //parte 7:48 ele fala como fazer
 
-            
+            //algoritmo hash usado
+            algoritmoHash = "SHA-256";
+
+            //Armazena os bytes do hash do texto cifrado do algoritmo AES
+            byte[] hashDoTextoCifradoAES;
 
             BigInteger dServidor = new BigInteger("123");
 
@@ -72,6 +81,9 @@ public class Cliente implements Runnable{
 
             //armazena mensagem que sera enviada ao servidor
             String MensagemEnviada;
+
+            //armazena numeros inteiros em modo texto
+            String inteiroParaTexto;
 
             //apagar essa variavel dps
             String mensagem;
@@ -136,34 +148,141 @@ public class Cliente implements Runnable{
 
                 conexaoParaDistribuicaoChaveAES = false;
                     
-                };
+            };
 
 
             //troca de mensagens entre cliente e servidor
             while (conexaoParaTrocaDeMensagens) {
+                
+                int entrada = 0;
+
+                String cifrado = "";
+                while (entrada != 3) {
+                    
+                
+                    System.out.println("|********************************|");
+                    System.out.println("|--------------------------------|");
+                    System.out.println("|###Escolha o que deseja fazer###|");
+                    System.out.println("|--------------------------------|");
+                    System.out.println("|Fazer Login - 1                 |");
+                    System.out.println("|Criar conta - 2                 |");
+                    System.out.println("|Sair        - 3                 |");
+                    System.out.print(" Digite: ");
+                    entrada = teclado.nextInt();
+                    System.out.println("|********************************|");
+                    System.out.println();
+                    System.out.println();
+                    System.out.println();
+                    System.out.println("/////////////////////////////////////////////");
+                    System.out.println();
+                    System.out.println();
+                    System.out.println();
+
+
+                        
+                                //----------------------------------------------------------------------------
+                                    //Envia AES
+                                        //cifrar e enviar
+
+                                        inteiroParaTexto = entrada+"";
+
+                                        try {
+                                            cifrado = criptoAES.cifrar(inteiroParaTexto, chaveAESServidor);
+                                        } catch (Exception e) {
+                                            // TODO Auto-generated catch block
+                                            e.printStackTrace();
+                                        }
+                                        saida.println(cifrado);
+                                //----------------------------------------------------------------------------
+
+                                //----------------------------------------------------------------------------
+                                    //Envia RSA com hash
+                                        //cifrar e enviar
+                                            
+                                            //Faz o hash do texto cifrado AES
+                                            hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                            //cifra Hash com RSA
+                                            hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eServidor, nServidor);
+                                            saida.println(hashCifradaComRSA);
+                                //----------------------------------------------------------------------------
+
+                    //Se for fazer login
+                    if(entrada == 1){
+
+
+                        System.out.println("|--------------------------------|");
+                        System.out.println("|############ Login #############|");
+                        System.out.println("|--------------------------------|");
+                        System.out.print("|Numero da conta: ");
+                        teclado.nextLine();
+                        String numConta = teclado.nextLine();
+                        
+                        System.out.print("|Senha: ");
+                        String senha = teclado.nextLine();
+                        
+            
+                        //Concatena as mensagens
+                        String numContaEsenha = numConta+ " " +senha;
+            
+                        //----------------------------------------------------------------------------
+                            //Envia AES
+                                //cifrar e enviar
+                                try {
+                                    cifrado = criptoAES.cifrar(numContaEsenha, chaveAESServidor);
+                                } catch (Exception e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                                saida.println(cifrado);
+                        //----------------------------------------------------------------------------
+
+                        //----------------------------------------------------------------------------
+                            //Envia RSA com hash
+                                //cifrar e enviar
+                                    
+                                    //Faz o hash do texto cifrado AES
+                                    hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                    resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                    //cifra Hash com RSA
+                                    hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eServidor, nServidor);
+                                    saida.println(hashCifradaComRSA);
+                        //----------------------------------------------------------------------------
+
+
+
+                    }
+
+                    //se for criar uma conta
+                    else if (entrada == 2) {
+                        
+                    }
+                }
                 //descifrar
             
-                System.out.println("Escreva uma mensagem: ");
-                MensagemTemporaria = teclado.nextLine();
+                // System.out.println("Escreva uma mensagem: ");
+                // MensagemTemporaria = teclado.nextLine();
                 
-                //cifrar
-                String fim = "";
-                try {
+                // //cifrar
+                // String fim = "";
+                // try {
                     
 
-                    String cifrado = criptoAES.cifrar(MensagemTemporaria, chaveAESServidor);
+                //     String cifrado = criptoAES.cifrar(MensagemTemporaria, chaveAESServidor);
                     
-                    fim = cifrado;
-                    System.out.println("****************");
-                    System.out.println(cifrado);
-                    System.out.println("****************");
-                    //saida.println(cifrado);
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                //     fim = cifrado;
+                //     System.out.println("****************");
+                //     System.out.println(cifrado);
+                //     System.out.println("****************");
+                //     //saida.println(cifrado);
+                // } catch (Exception e) {
+                //     // TODO Auto-generated catch block
+                //     e.printStackTrace();
+                // }
 
-                saida.println(fim);
+                // saida.println(fim);
                 
             }
 

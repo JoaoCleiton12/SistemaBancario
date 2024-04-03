@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 
 import Criptografia.CriptoRSA;
 import Criptografia.CriptografiaAES;
+import Criptografia.ImplSHA3;
 
 public class Servidor implements Runnable{
 
@@ -28,8 +29,11 @@ public class Servidor implements Runnable{
 
     private boolean mensagem1 = true;
     private boolean mensagemChave = true;
-    private CriptoRSA cripto = new CriptoRSA();
+    private CriptoRSA criptoRSA = new CriptoRSA();
     private String ChavePublicaCliente;
+
+
+    private String algoritmoHash;
 
     private CriptografiaAES criptoAES;
     private SecretKey chaveAES;
@@ -54,6 +58,27 @@ public class Servidor implements Runnable{
             BigInteger eCliente = new BigInteger("123123");
             BigInteger nCliente = new BigInteger("123213");
 
+            //variável que recebe a mensagem enviada pelo cliente, cifrada em AES
+            String MensagemAES;
+            //variável que receebe a mensagem enviada pelo cliente, o hash da mensagem AES cifrado com RSA
+            String MensagemRSAComHash;
+            //variável que armazena a mensagem aes enviada pelo servidor, decifrada.
+            String decifraAESdaMensagem;
+
+            //armazena o valor inteiro que foi convertido de um texto
+            //vai comçar como -1, pois se for não for nenhum valor conhecido, irei retornar erro
+            int entrada = -1;
+
+            String decifraRSAdaMensagem;
+
+            //Armazena os bytes do hash do texto cifrado do algoritmo AES
+            byte[] hashDoTextoCifradoAES;
+            //resultado no formado string do hash do texto cifrado AES
+            String resultadoDoHash;
+
+            //algoritmo hash usado
+            algoritmoHash = "SHA-256";
+
             String mensagemRecebida;
 
             Scanner s = null;
@@ -75,9 +100,9 @@ public class Servidor implements Runnable{
 
                 //gera chave do servidor
                 //recebe os valores
-                eChaveServidor = cripto.enviarE();
-                nChaveServidor = cripto.enviarN();
-                dChaveServidor = cripto.enviarD();
+                eChaveServidor = criptoRSA.enviarE();
+                nChaveServidor = criptoRSA.enviarN();
+                dChaveServidor = criptoRSA.enviarD();
 
                 //converte para string
                 letraE = eChaveServidor.toString();
@@ -120,23 +145,11 @@ public class Servidor implements Runnable{
                     e.printStackTrace();
                 }
 
-                System.out.println("*******************");
-                System.out.println(chaveAES);
-                System.out.println("*******************");
-
-
                 byte[] chaveemBytes = chaveAES.getEncoded();
 
                 String chaveEmString = Base64.getEncoder().encodeToString(chaveemBytes);
 
-                String ChaveCifrada = cripto.encriptar(chaveEmString, eCliente, nCliente);
-
-                // outChave.writeInt(ChaveCifrada.length);
-                // outChave.write(ChaveCifrada);
-                // outChave.flush();
-
-                // out.writeObject(chaveAES);
-                // out.flush();
+                String ChaveCifrada = criptoRSA.encriptar(chaveEmString, eCliente, nCliente);
 
                 saida.println(ChaveCifrada);
                 
@@ -146,30 +159,83 @@ public class Servidor implements Runnable{
             }
 
             while (conexaoTrocaDeMensagens) {
-                //saida.print(chaveAES);
+                
+                //Recebe a entrada (Qual operação ira fazer)
+                
+                    //recebe mensagem AES
+                    MensagemAES = s.nextLine();
 
-                //recebe mensagem cifrada enviada pelo cliente
-                mensagemRecebida = s.nextLine();
+                    //recebe mensagem hash do aes cifrada com RSA
+                    MensagemRSAComHash = s.nextLine();
 
-                System.out.println(mensagemRecebida);
+        
+                    //-------------------------------------------------------------------------------
+                        //Decifra RSA
+                            //hash da mensagem
+                            decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
+                    //-------------------------------------------------------------------------------
+
+                    //-------------------------------------------------------------------------------
+                        //faz o hash da mensagem recebida AES
+                        hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+
+                        //armazena o resultado do hash no formato String
+                        resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                        //verifica se os hash são iguais
+                        if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
+                            //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                            //-------------------------------------------------------------------------------
+                                //Decifra AES
+                                    try {
+                                        decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
+                                        entrada = Integer.parseInt(decifraAESdaMensagem); 
+                                    } catch (Exception e) {
+                                        
+                                        e.printStackTrace();
+                                    }
+                            //-------------------------------------------------------------------------------
+                        }
+
+                        
+                        
+                        if (entrada == 1) {
+                            
+                        }
 
                 
 
-                //fazer decifração usando a chave privada do servidor
 
-                //transformar de string para bytes[]
+                
+                
+                
+                
+                
+                // //saida.print(chaveAES);
 
-                String mensagemoriginal;
-                try {
-                    mensagemoriginal = criptoAES.decifrar(mensagemRecebida,chaveAES);
+                // //recebe mensagem cifrada enviada pelo cliente
+                // mensagemRecebida = s.nextLine();
 
-                    System.out.println("******************");
-                    System.out.println(mensagemoriginal);
-                    System.out.println("******************");
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                // System.out.println(mensagemRecebida);
+
+                
+
+                // //fazer decifração usando a chave privada do servidor
+
+                // //transformar de string para bytes[]
+
+                // String mensagemoriginal;
+                // try {
+
+                    //     mensagemoriginal = criptoAES.decifrar(mensagemRecebida,chaveAES);
+
+                //     System.out.println("******************");
+                //     System.out.println(mensagemoriginal);
+                //     System.out.println("******************");
+                // } catch (Exception e) {
+                //     // TODO Auto-generated catch block
+                //     e.printStackTrace();
+                // }
                 
 
                 //quando for enviar mensagem
