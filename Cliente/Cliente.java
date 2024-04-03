@@ -85,8 +85,22 @@ public class Cliente implements Runnable{
             //armazena numeros inteiros em modo texto
             String inteiroParaTexto;
 
-            //apagar essa variavel dps
-            String mensagem;
+
+            //armazena a mensagem enviada pelo servidor, contendo o hash do AES cifrado em RSA
+            String hashDoAESCifradoRSA;
+
+            //armazena a mensagem enviada pelo servidorr, cifrada em AES
+            String mensagemCifradaAES;
+
+            //armazena hash do AES decifrado
+            String hashDoAESDecifrado;
+            
+            //armazena mensagem AES decifrada
+            String decifraAESDaMensagem = "";
+
+            //armazena o resultado da confirmação de login do servidor
+            int confirmarLogin = -1;
+
 
             //armazena as partes da chave publica do cliente
             String letraE,LetraN, LetraEeLetraN;
@@ -251,6 +265,119 @@ public class Cliente implements Runnable{
                                     saida.println(hashCifradaComRSA);
                         //----------------------------------------------------------------------------
 
+                        
+                        System.out.println("Passou");
+                        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                            //Recebe confirmação do servidor
+                            mensagemCifradaAES = s.nextLine();
+                            
+                            hashDoAESCifradoRSA = s.nextLine();
+
+                            //decifra o RSA do hash
+                            hashDoAESDecifrado = criptoRSA.desencriptar(hashDoAESCifradoRSA, criptoRSA.enviarD(), criptoRSA.enviarN());
+
+                            //faz o hash da mensagem cifrada em AES recebida
+                            hashDoTextoCifradoAES = ImplSHA3.resumo(mensagemCifradaAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                            
+                            //verifica se os hash são iguais
+                            if (resultadoDoHash.equals(hashDoAESDecifrado)) {
+                                //como o hash bateu, entao eu posso fazer a decifragem da mensagem AES e usa-la
+                                try {
+                                    decifraAESDaMensagem = criptoAES.decifrar(mensagemCifradaAES, chaveAESServidor);
+
+                                    
+                                    confirmarLogin = Integer.parseInt(decifraAESDaMensagem);
+                                } catch (Exception e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                            }
+
+
+                            //se o login for válido
+                            if (confirmarLogin == 0 ) {
+                                System.out.println();
+                                System.out.println();
+                                System.out.println();
+                                System.out.println("/////////////////////////////////////////////");
+                                System.out.println();
+                                System.out.println();
+                                System.out.println();
+
+
+                                System.out.println("|********************************|");
+                                System.out.println("|#####  Login bem sucedido ######|");
+
+
+                                int escolha = 0;
+
+                                //esse laço vai verificar oque o usuário deseja fazer no sistema
+                                while (escolha != 6) {
+                                        System.out.println("|********************************|");
+                                        System.out.println("|--------------------------------|");
+                                        System.out.println("|Saque ........................ 1|");
+                                        System.out.println("|Depósito ..................... 2|");
+                                        System.out.println("|Transferência ................ 3|");
+                                        System.out.println("|Saldo ........................ 4|");
+                                        System.out.println("|Investimento ................. 5|");
+                                        System.out.println("|Sair ......................... 6|");
+                    
+                                        System.out.print("|Digite: ");
+                                        escolha = teclado.nextInt();
+                    
+                                        System.out.println("|--------------------------------|");
+                                        System.out.println("|********************************|");
+                                        System.out.println();
+                                        System.out.println();
+                                        System.out.println("////////////////////////////////////////////////");
+                                        System.out.println();
+                                        System.out.println();
+
+                                        //caso o usuário escolha fazer um saque
+                                        if (escolha == 1) {
+                                            System.out.println("|********************************|");
+                                            System.out.println("|--------------------------------|");
+                                            System.out.println("|############# Saque ############|");
+                                            System.out.println("|--------------------------------|");
+                                            System.out.print("|Valor: ");
+                                            double saque = teclado.nextDouble();
+                                            //sistema.saque(numConta, saque);
+                                            
+
+                                            System.out.println("|--------------------------------|");
+                                            System.out.println("|********************************|");
+                                            System.out.println();
+                                            System.out.println();
+                                            System.out.println("////////////////////////////////////////////////");
+                                            System.out.println();
+                                            System.out.println();
+                                        }
+                                }
+                            }
+                            //caso o login não seja válido
+                            else{
+                                System.out.println();
+                                System.out.println();
+                                System.out.println();
+                                System.out.println("/////////////////////////////////////////////");
+                                System.out.println();
+                                System.out.println();
+                                System.out.println();
+
+
+                                System.out.println("|********************************|");
+                                System.out.println("|--------------------------------|");
+                                System.out.println("|#### Credenciais inválidas #####|");
+                                System.out.println("|--------------------------------|");
+                                System.out.println("|********************************|");
+                                System.out.println();
+                                System.out.println();
+                                System.out.println("////////////////////////////////////////////////");
+                                System.out.println();
+                                System.out.println();
+                            }
 
 
                     }
