@@ -36,11 +36,14 @@ public class SistemaBancario {
     }
 
     //Criar conta corrente (User Story 2)
-    public void criarContaCorrente(String nome, String cpf, String endereco, String telefone, String senha){
+    public String criarContaCorrente(String nome, String cpf, String endereco, String telefone, String senha){
         ContaCorrente contaNova = new ContaCorrente(nome, cpf, endereco, telefone, senha);
         String numeroConta = contaNova.getNumConta();
         listaContas.put(numeroConta, contaNova);
-        System.out.println(" O numero da sua conta é: "+numeroConta);
+       
+        String retorno = " O numero da sua conta é: "+numeroConta;
+
+        return retorno;
     }
 
     //Saque (User Story 3)
@@ -80,9 +83,11 @@ public class SistemaBancario {
     }
 
     //Investimentos (User Story 7)
-    public void investimentos(String numeroConta, int tipoInvestimento){
+    public String investimentos(String numeroConta, int tipoInvestimento){
         //poupança = 1
         //renda fixa = 2
+
+        String retorno = "";
         DecimalFormat formato = new DecimalFormat("#.##");
 
         if (tipoInvestimento == 1) {
@@ -109,10 +114,9 @@ public class SistemaBancario {
             String numeroFormatado2 = formato.format(seismeses);
             String numeroFormatado3 = formato.format(dozemeses);
 
-            System.out.println("|Valor aplicado: "+listaContas.get(numeroConta).saldo());
-            System.out.println("|Rendimento em 3 meses: "+ numeroFormatado);
-            System.out.println("|Rendimento em 6 meses: "+ numeroFormatado2);
-            System.out.println("|Rendimento em 12 meses: "+ numeroFormatado3);
+            
+
+            retorno = "|Valor aplicado: "+listaContas.get(numeroConta).saldo()+"\n|Rendimento em 3 meses: "+ numeroFormatado+"\n|Rendimento em 6 meses: "+ numeroFormatado2+"\n|Rendimento em 12 meses: "+ numeroFormatado3+"\n";
         }
         else if (tipoInvestimento == 2) {
             double tresmesesRenda = listaContas.get(numeroConta).saldo(); 
@@ -138,11 +142,11 @@ public class SistemaBancario {
             String numeroFormatado2 = formato.format(seismesesRenda);
             String numeroFormatado3 = formato.format(dozemesesRenda);
 
-            System.out.println("|Valor aplicado: "+listaContas.get(numeroConta).saldo());
-            System.out.println("|Rendimento em 3 meses: "+ numeroFormatado);
-            System.out.println("|Rendimento em 6 meses: "+ numeroFormatado2);
-            System.out.println("|Rendimento em 12 meses: "+ numeroFormatado3);
+            
+
+            retorno = "|Valor aplicado: "+listaContas.get(numeroConta).saldo()+"\n|Rendimento em 3 meses: "+ numeroFormatado+"\n|Rendimento em 6 meses: "+ numeroFormatado2+"\n|Rendimento em 12 meses: "+ numeroFormatado3+"\n";
         }
+        return retorno;
     }
 
     //Autenticação de mensagens (User Story 8)
