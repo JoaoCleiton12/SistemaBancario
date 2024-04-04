@@ -76,18 +76,11 @@ public class Cliente implements Runnable{
 
             inChaveAES = new DataInputStream(cliente.getInputStream());
 
-            //armazena temporariamente a mensagem que sera enviada ao servidor, antes de ser cifrada
-            String MensagemTemporaria;
-
-            //armazena mensagem que sera enviada ao servidor
-            String MensagemEnviada;
-
             //armazena numeros inteiros em modo texto
             String inteiroParaTexto;
 
             //armazena numero decimal, referente ao valor
             String doubleParaTexto;
-
 
             //armazena a mensagem enviada pelo servidor, contendo o hash do AES cifrado em RSA
             String hashDoAESCifradoRSA;
@@ -130,17 +123,10 @@ public class Cliente implements Runnable{
                 eServidor = new BigInteger(LetraEServidor);
                 nServidor = new BigInteger(LetraNServidor);
 
-                
-
                 //Gera chave publica do cliente
                 //recebe os valores
                 BigInteger e = criptoRSA.enviarE();
                 BigInteger n = criptoRSA.enviarN();
-                BigInteger d = criptoRSA.enviarD();
-
-
-
-                dServidor = criptoRSA.enviarD();
 
                 //converte para string
                 letraE = e.toString();
@@ -149,13 +135,13 @@ public class Cliente implements Runnable{
                 //concateno ambos
                 LetraEeLetraN = letraE+ " " +LetraN;
                 
-                //Envia chave publica do cliente para o servidor
+                //Envia chave publica do cliente para o servidor.
                 saida.println(LetraEeLetraN);
 
                 conexaoTrocaDeChavesPublicaRSA = false;
             }
 
-            //recebimento de chave do AES enviada pelo servidor
+            //recebimento de chave do AES (cifrada em RSA) enviada pelo servidor.
             if (conexaoParaDistribuicaoChaveAES) {
                 
                 String m = s.nextLine();
@@ -199,7 +185,7 @@ public class Cliente implements Runnable{
                     System.out.println();
 
 
-                        
+                                //ENVIAR
                                 //----------------------------------------------------------------------------
                                     //Envia AES
                                         //cifrar e enviar
@@ -213,9 +199,7 @@ public class Cliente implements Runnable{
                                             e.printStackTrace();
                                         }
                                         saida.println(cifrado);
-                                //----------------------------------------------------------------------------
-
-                                //----------------------------------------------------------------------------
+                                
                                     //Envia RSA com hash
                                         //cifrar e enviar
                                             
@@ -246,6 +230,7 @@ public class Cliente implements Runnable{
                         //Concatena as mensagens
                         String numContaEsenha = numConta+ " " +senha;
             
+                        //ENVIAR
                         //----------------------------------------------------------------------------
                             //Envia AES
                                 //cifrar e enviar
@@ -256,9 +241,7 @@ public class Cliente implements Runnable{
                                     e.printStackTrace();
                                 }
                                 saida.println(cifrado);
-                        //----------------------------------------------------------------------------
-
-                        //----------------------------------------------------------------------------
+                        
                             //Envia RSA com hash
                                 //cifrar e enviar
                                     
@@ -271,6 +254,8 @@ public class Cliente implements Runnable{
                                     saida.println(hashCifradaComRSA);
                         //----------------------------------------------------------------------------
 
+
+                        //RECEBER
                         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                             //Recebe confirmação do servidor
                             mensagemCifradaAES = s.nextLine();
@@ -340,7 +325,8 @@ public class Cliente implements Runnable{
                                         System.out.println();
                                         System.out.println();
 
-                                            //Envia para o servidor qual operação o cliente vai fazer
+                                                //ENVIAR
+                                                //operação o cliente vai fazer
                                                 //----------------------------------------------------------------------------
                                                                 //Envia AES
                                                                     //cifrar e enviar
@@ -354,9 +340,7 @@ public class Cliente implements Runnable{
                                                                         e.printStackTrace();
                                                                     }
                                                                     saida.println(cifrado);
-                                                            //----------------------------------------------------------------------------
-
-                                                            //----------------------------------------------------------------------------
+                                                            
                                                                 //Envia RSA com hash
                                                                     //cifrar e enviar
                                                                         
@@ -380,7 +364,7 @@ public class Cliente implements Runnable{
                                             double saque = teclado.nextDouble();
 
                                             
-                                                        
+                                                            //ENVIAR
                                                             //----------------------------------------------------------------------------
                                                                 //Envia AES
                                                                     //cifrar e enviar
@@ -394,9 +378,7 @@ public class Cliente implements Runnable{
                                                                         e.printStackTrace();
                                                                     }
                                                                     saida.println(cifrado);
-                                                            //----------------------------------------------------------------------------
-
-                                                            //----------------------------------------------------------------------------
+                                                            
                                                                 //Envia RSA com hash
                                                                     //cifrar e enviar
                                                                         
@@ -409,6 +391,8 @@ public class Cliente implements Runnable{
                                                                         saida.println(hashCifradaComRSA);
                                                             //----------------------------------------------------------------------------
 
+
+                                                            //RECEBER
                                                             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                                     //Recebe saldo do servidor
                                                                     mensagemCifradaAES = s.nextLine();
@@ -460,7 +444,7 @@ public class Cliente implements Runnable{
                                             System.out.print("|Valor: ");
                                             double deposito = teclado.nextDouble();
                                             
-                                            //sistema.deposito(numConta, deposito);
+                                                            //ENVIAR
                                                             //----------------------------------------------------------------------------
                                                                 //Envia AES
                                                                     //cifrar e enviar
@@ -474,9 +458,7 @@ public class Cliente implements Runnable{
                                                                         e.printStackTrace();
                                                                     }
                                                                     saida.println(cifrado);
-                                                            //----------------------------------------------------------------------------
-
-                                                            //----------------------------------------------------------------------------
+                                                            
                                                                 //Envia RSA com hash
                                                                     //cifrar e enviar
                                                                         
@@ -490,8 +472,7 @@ public class Cliente implements Runnable{
                                                             //----------------------------------------------------------------------------
 
 
-
-
+                                                            //RECEBER
                                                             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                                     //Recebe saldo do servidor
                                                                     mensagemCifradaAES = s.nextLine();
@@ -562,6 +543,7 @@ public class Cliente implements Runnable{
 
                                                 if (senha.equals(senhaContaOrigem)) {
 
+                                                    //ENVIAR
                                                     //----------------------------------------------------------------------------
                                                                 //Envia AES
                                                                     //cifrar e enviar
@@ -575,9 +557,7 @@ public class Cliente implements Runnable{
                                                                         e.printStackTrace();
                                                                     }
                                                                     saida.println(cifrado);
-                                                            //----------------------------------------------------------------------------
-
-                                                            //----------------------------------------------------------------------------
+                                                            
                                                                 //Envia RSA com hash
                                                                     //cifrar e enviar
                                                                         
@@ -591,7 +571,7 @@ public class Cliente implements Runnable{
                                                             //----------------------------------------------------------------------------
 
 
-                                                    //recebe do servidor
+                                                            //RECEBER
                                                             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                                     mensagemCifradaAES = s.nextLine();
                                                                     
@@ -649,7 +629,7 @@ public class Cliente implements Runnable{
                                             System.out.println("|############# Saldo ############|");
                                             System.out.println("|--------------------------------|");
                                            
-                                            
+                                                    //RECEBER
                                                     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                             mensagemCifradaAES = s.nextLine();
                                                                             
@@ -711,7 +691,7 @@ public class Cliente implements Runnable{
                                                 System.out.println("|########### Poupança ###########|");
                                                 System.out.println("|--------------------------------|");
 
-                                                //sistema.investimentos(numConta, escolhaInvestimento);
+                                                            //ENVIAR
                                                             //----------------------------------------------------------------------------
                                                                     //Envia AES
                                                                     //cifrar e enviar
@@ -725,9 +705,7 @@ public class Cliente implements Runnable{
                                                                         e.printStackTrace();
                                                                     }
                                                                     saida.println(cifrado);
-                                                            //----------------------------------------------------------------------------
-
-                                                            //----------------------------------------------------------------------------
+                                                           
                                                                 //Envia RSA com hash
                                                                     //cifrar e enviar
                                                                         
@@ -739,7 +717,9 @@ public class Cliente implements Runnable{
                                                                         hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eServidor, nServidor);
                                                                         saida.println(hashCifradaComRSA);
                                                             //----------------------------------------------------------------------------
+ 
 
+                                                            //RECEBER
                                                             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                                     mensagemCifradaAES = s.nextLine();
                                                                                     
@@ -782,8 +762,8 @@ public class Cliente implements Runnable{
                                                 System.out.println("|--------------------------------|");
                                                 System.out.println("|########## Renda fixa ##########|");
                                                 System.out.println("|--------------------------------|");
-                                                //sistema.investimentos(numConta, escolhaInvestimento);
 
+                                                            //ENVIAR
                                                             //----------------------------------------------------------------------------
                                                                     //Envia AES
                                                                     //cifrar e enviar
@@ -797,9 +777,7 @@ public class Cliente implements Runnable{
                                                                         e.printStackTrace();
                                                                     }
                                                                     saida.println(cifrado);
-                                                            //----------------------------------------------------------------------------
-
-                                                            //----------------------------------------------------------------------------
+                                                            
                                                                 //Envia RSA com hash
                                                                     //cifrar e enviar
                                                                         
@@ -812,6 +790,8 @@ public class Cliente implements Runnable{
                                                                         saida.println(hashCifradaComRSA);
                                                             //----------------------------------------------------------------------------
 
+
+                                                            //RECEBER
                                                             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                                     mensagemCifradaAES = s.nextLine();
                                                                                     
@@ -848,7 +828,6 @@ public class Cliente implements Runnable{
                                             }
                                         }
 
-                                        
                                 }
                             }
                             //caso o login não seja válido
@@ -896,6 +875,7 @@ public class Cliente implements Runnable{
                         String senhaCriada = teclado.nextLine();
                         //sistema.criarContaCorrente(nome, cpf, endereco, telefone, senhaCriada);
 
+                                                            //ENVIAR
                                                             //----------------------------------------------------------------------------
                                                                     //Envia AES
                                                                     //cifrar e enviar
@@ -909,9 +889,7 @@ public class Cliente implements Runnable{
                                                                         e.printStackTrace();
                                                                     }
                                                                     saida.println(cifrado);
-                                                            //----------------------------------------------------------------------------
 
-                                                            //----------------------------------------------------------------------------
                                                                 //Envia RSA com hash
                                                                     //cifrar e enviar
                                                                         
@@ -924,7 +902,8 @@ public class Cliente implements Runnable{
                                                                         saida.println(hashCifradaComRSA);
                                                             //----------------------------------------------------------------------------
 
-
+                                                            
+                                                            //RECEBER
                                                             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                                     mensagemCifradaAES = s.nextLine();
                                                                                             
