@@ -34,12 +34,8 @@ public class ContaCorrente {
     public void saque(double valor){
         if ((saldo >= valor) && (valor >0)) {
             remove(valor);
-            System.out.println(" Saque realizado com sucesso.");
-            System.out.println(" Saldo atual após saque: "+saldo);
         }else{
-            //Retornar tambem o saldo atual
-            System.out.println(" Saldo insuficiente.");
-            System.out.println(" Saldo atual: "+saldo());
+            
         }
     }
 
