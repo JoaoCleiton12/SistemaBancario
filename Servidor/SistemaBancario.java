@@ -58,14 +58,16 @@ public class SistemaBancario {
     }
 
     //Transferência (User Story 5)
-    public void transferência(String numContaOrigem, String numContaDestino, double valor){
+    public String transferência(String numContaOrigem, String numContaDestino, double valor){
+        String retorno;
         if (listaContas.containsKey(numContaOrigem) && listaContas.containsKey(numContaDestino)) {
            listaContas.get(numContaOrigem).remove(valor);
            listaContas.get(numContaDestino).add(valor);
-           System.out.println(" ##Transferencia realizada##");
+           retorno = " ##Transferencia realizada##";
         }else{
-            System.out.println(" ###Conta inválida###");
+            retorno = " ###Conta destino inválida###";
         }
+        return retorno;
     }
 
     //Saldo (User Story 6)

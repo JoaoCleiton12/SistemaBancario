@@ -197,369 +197,555 @@ public class Servidor implements Runnable{
                 
                 //Recebe a entrada (Qual operação ira fazer)
                 
-                //*******************************************************************************************************
-                    //Código para receber mensagens do servidor
+                    
                 
-                        //recebe mensagem AES
-                        MensagemAES = s.nextLine();
-
-                        //recebe mensagem hash do aes cifrada com RSA
-                        MensagemRSAComHash = s.nextLine();
-
-            
+                        //*******************************************************************************************************
+                            //Código para receber mensagens do servidor
                         
-                            //Decifra RSA
-                            //hash da mensagem
-                            decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
-                        
-                            //faz o hash da mensagem recebida AES
-                            hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                //recebe mensagem AES
+                                MensagemAES = s.nextLine();
 
-                            //armazena o resultado do hash no formato String
-                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+                                //recebe mensagem hash do aes cifrada com RSA
+                                MensagemRSAComHash = s.nextLine();
 
-                            //verifica se os hash são iguais
-                            if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
-                                //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                    
                                 
-                                    //Decifra AES
-                                        try {
-                                            decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
-                                            entrada = Integer.parseInt(decifraAESdaMensagem); 
-                                        } catch (Exception e) {
-                                            
-                                            e.printStackTrace();
-                                        }
+                                    //Decifra RSA
+                                    //hash da mensagem
+                                    decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
                                 
-                            }
+                                    //faz o hash da mensagem recebida AES
+                                    hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
 
-                //******************************************************************************************************
+                                    //armazena o resultado do hash no formato String
+                                    resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
 
-                //Faz login
-                    if (entrada == 1) {
-                            //*******************************************************************************************************
-                                //Código para receber mensagens do servidor
-                            
-                                    //recebe mensagem AES
-                                    MensagemAES = s.nextLine();
-
-                                    //recebe mensagem hash do aes cifrada com RSA
-                                    MensagemRSAComHash = s.nextLine();
-
-                                        //Decifra RSA
-                                            //hash da mensagem
-                                            decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
-                                    
-                                        //faz o hash da mensagem recebida AES
-                                        hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
-
-                                        //armazena o resultado do hash no formato String
-                                        resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
-
-                                        //verifica se os hash são iguais
-                                        if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
-                                            //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
-                                            //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                                                //Decifra AES
-                                                    try {
-                                                        decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
-                                                        //separa a senha do numero da conta
-                                                        contaESenha = decifraAESdaMensagem.split(" ");
-
-                                                        conta = contaESenha[0];
-                                                        senha = contaESenha[1];
-
-                                                    } catch (Exception e) {
-                                                        
-                                                        e.printStackTrace();
-                                                    }
-                                            //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                                        }
-
-                            //*******************************************************************************************************
-                            
-
-                            if (sistema.autenticarMensagens(conta, senha)) {
-                               
-                               //altera o valor, para informar ao cliente que foi possivel autenticar
-                               confimacao = 0;
-                            }
-
-
-                            //enviar pro cliente um número para confimar que o login foi bem sucedido.
-                                
-                                //-------------------------------------------------------------------------------------------------
-                                    //Envia para cliente mensagem cifrada em AES
-                                    inteiroParaTexto = confimacao+"";
-
-                                    try {
-                                        cifrado = criptoAES.cifrar(inteiroParaTexto, chaveAES);
-                                    } catch (Exception e) {
-                                        // TODO Auto-generated catch block
-                                        e.printStackTrace();
+                                    //verifica se os hash são iguais
+                                    if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
+                                        //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                                        
+                                            //Decifra AES
+                                                try {
+                                                    decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
+                                                    entrada = Integer.parseInt(decifraAESdaMensagem); 
+                                                } catch (Exception e) {
+                                                    
+                                                    e.printStackTrace();
+                                                }
+                                        
                                     }
 
-                                    saida.println(cifrado);
-    
-                                
-                                    //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+                        //******************************************************************************************************
 
-                                        //faz o hash do texto cifrado em AES
-                                        hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
-                                        resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
-
-                                        //cifra o hash com RSA
-                                        hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
-                                        saida.println(hashCifradaComRSA);
-                                //-------------------------------------------------------------------------------------------------
-
-
-                                //Recebe do cliente qual operação ele vai fazer
-                                //*******************************************************************************************************
-                                    //Código para receber mensagens do servidor
-                                
-                                        //recebe mensagem AES
-                                        MensagemAES = s.nextLine();
-
-                                        //recebe mensagem hash do aes cifrada com RSA
-                                        MensagemRSAComHash = s.nextLine();
-
-                            
+                        //Faz login
+                            if (entrada == 1) {
+                                    //*******************************************************************************************************
+                                        //Código para receber mensagens do cliente
                                         
-                                            //Decifra RSA
-                                            //hash da mensagem
-                                            decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
+                                            //recebe mensagem AES
+                                            MensagemAES = s.nextLine();
+
+                                            //recebe mensagem hash do aes cifrada com RSA
+                                            MensagemRSAComHash = s.nextLine();
+
+                                                //Decifra RSA
+                                                    //hash da mensagem
+                                                    decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
+                                            
+                                                //faz o hash da mensagem recebida AES
+                                                hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+
+                                                //armazena o resultado do hash no formato String
+                                                resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                //verifica se os hash são iguais
+                                                if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
+                                                    //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                                                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                        //Decifra AES
+                                                            try {
+                                                                decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
+                                                                //separa a senha do numero da conta
+                                                                contaESenha = decifraAESdaMensagem.split(" ");
+
+                                                                conta = contaESenha[0];
+                                                                senha = contaESenha[1];
+
+                                                        
+
+                                                            } catch (Exception e) {
+                                                                
+                                                                e.printStackTrace();
+                                                            }
+                                                    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                                }
+
+                                    //*******************************************************************************************************
+                                    
+
+                                    //caso o login seja bem sucedido
+                                    if (sistema.autenticarMensagens(conta, senha)) {
+                                    
+                                    //altera o valor, para informar ao cliente que foi possivel autenticar
+                                    confimacao = 0;
+
+                                    //enviar pro cliente um número para confimar que o login foi bem sucedido.
                                         
-                                            //faz o hash da mensagem recebida AES
-                                            hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                        //-------------------------------------------------------------------------------------------------
+                                            //Envia para cliente mensagem cifrada em AES
+                                            inteiroParaTexto = confimacao+"";
 
-                                            //armazena o resultado do hash no formato String
-                                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+                                            try {
+                                                cifrado = criptoAES.cifrar(inteiroParaTexto, chaveAES);
+                                            } catch (Exception e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
+                                            }
 
-                                            //verifica se os hash são iguais
-                                            if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
-                                                //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                                            saida.println(cifrado);
+            
+                                        
+                                            //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                //faz o hash do texto cifrado em AES
+                                                hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                //cifra o hash com RSA
+                                                hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                saida.println(hashCifradaComRSA);
+                                        //-------------------------------------------------------------------------------------------------
+
+                                        escolha = -1;
+
+                                        
+                                        //vai ficar nesse laço vendo oque o usuário quer fazer
+                                        while (escolha != 6) {
+                                            
+                                           
+                                            //Recebe do cliente qual operação ele vai fazer
+                                                //*******************************************************************************************************
+                                                    //Código para receber mensagens do servidor
                                                 
-                                                    //Decifra AES
+                                                        //recebe mensagem AES
+                                                        MensagemAES = s.nextLine();
+
+                                                        //recebe mensagem hash do aes cifrada com RSA
+                                                        MensagemRSAComHash = s.nextLine();
+
+                                            
+                                                        
+                                                            //Decifra RSA
+                                                            //hash da mensagem
+                                                            decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
+                                                        
+                                                            //faz o hash da mensagem recebida AES
+                                                            hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+
+                                                            //armazena o resultado do hash no formato String
+                                                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                            //verifica se os hash são iguais
+                                                            if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
+                                                                //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                                                                
+                                                                    //Decifra AES
+                                                                        try {
+                                                                            decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
+                                                                            escolha = Integer.parseInt(decifraAESdaMensagem); 
+                                                                        } catch (Exception e) {
+                                                                            
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                
+                                                            }
+
+                                                //******************************************************************************************************
+
+
+                                                //saque
+                                            if (escolha == 1) {
+                                            
+                                            
+                                                //*******************************************************************************************************
+                                                    //Código para receber mensagens do servidor
+                                                
+                                                        //recebe mensagem AES
+                                                        MensagemAES = s.nextLine();
+
+                                                        //recebe mensagem hash do aes cifrada com RSA
+                                                        MensagemRSAComHash = s.nextLine();
+
+                                                            //Decifra RSA
+                                                            //hash da mensagem
+                                                            decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
+                                                        
+                                                            //faz o hash da mensagem recebida AES
+                                                            hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+
+                                                            //armazena o resultado do hash no formato String
+                                                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                            //verifica se os hash são iguais
+                                                            if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
+                                                                //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                                                                
+                                                                    //Decifra AES
+                                                                        try {
+                                                                            decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
+                                                                            valor = Double.parseDouble(decifraAESdaMensagem); 
+                                                                        } catch (Exception e) {
+                                                                            
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                
+                                                            }
+
+                                                //******************************************************************************************************
+
+                                            //verifica se o valor é menor que o saldo atual
+                                            if (valor <= sistema.saldo(conta)) {
+                                                sistema.saque(conta, valor);
+
+                                                //retornar saldo atual para servidor
+                                                //-------------------------------------------------------------------------------------------------
+                                                    //Envia para cliente mensagem cifrada em AES
+                                                    doubleParaTexto = " Saque realizado com sucesso.\n Saldo atual após saque: "+sistema.saldo(conta);
+
+                                                    try {
+                                                        cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
+                                                    } catch (Exception e) {
+                                                        // TODO Auto-generated catch block
+                                                        e.printStackTrace();
+                                                    }
+
+                                                    saida.println(cifrado);
+                    
+                                                
+                                                    //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                        //faz o hash do texto cifrado em AES
+                                                        hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                        resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                        //cifra o hash com RSA
+                                                        hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                        saida.println(hashCifradaComRSA);
+                                                //-------------------------------------------------------------------------------------------------
+                                            
+                                                }else if (valor > sistema.saldo(conta)) {
+                                                    //-------------------------------------------------------------------------------------------------
+                                                        //Envia para cliente mensagem cifrada em AES
+                                                        doubleParaTexto = " Saldo insuficiente.\n Saldo atual: "+sistema.saldo(conta);
+
                                                         try {
-                                                            decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
-                                                            escolha = Integer.parseInt(decifraAESdaMensagem); 
+                                                            cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
                                                         } catch (Exception e) {
-                                                            
+                                                            // TODO Auto-generated catch block
                                                             e.printStackTrace();
                                                         }
+
+                                                        saida.println(cifrado);
+                        
+                                                    
+                                                        //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                            //faz o hash do texto cifrado em AES
+                                                            hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                            //cifra o hash com RSA
+                                                            hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                            saida.println(hashCifradaComRSA);
+                                                    //-------------------------------------------------------------------------------------------------
+                                                }
+                                            }
+
+                                            //depósito
+                                            if (escolha == 2) {
+                                            //*******************************************************************************************************
+                                                //Código para receber mensagens do servidor
+                                            
+                                                    //recebe mensagem AES
+                                                    MensagemAES = s.nextLine();
+
+                                                    //recebe mensagem hash do aes cifrada com RSA
+                                                    MensagemRSAComHash = s.nextLine();
+
+                                                        //Decifra RSA
+                                                        //hash da mensagem
+                                                        decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
+                                                    
+                                                        //faz o hash da mensagem recebida AES
+                                                        hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+
+                                                        //armazena o resultado do hash no formato String
+                                                        resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                        //verifica se os hash são iguais
+                                                        if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
+                                                            //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                                                            
+                                                                //Decifra AES
+                                                                    try {
+                                                                        decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
+                                                                        valor = Double.parseDouble(decifraAESdaMensagem); 
+                                                                    } catch (Exception e) {
+                                                                        
+                                                                        e.printStackTrace();
+                                                                    }
+                                                            
+                                                        }
+
+                                            //******************************************************************************************************
+
+                                            if (valor > 0) {
+                                                //realiza depósito
+                                                sistema.deposito(conta, valor);
+
+                                                
+                                                //retornar saldo atual para servidor
+                                                //-------------------------------------------------------------------------------------------------
+                                                    //Envia para cliente mensagem cifrada em AES
+                                                    doubleParaTexto = sistema.saldo(conta)+"";
+
+                                                    try {
+                                                        cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
+                                                    } catch (Exception e) {
+                                                        // TODO Auto-generated catch block
+                                                        e.printStackTrace();
+                                                    }
+
+                                                    saida.println(cifrado);
+                    
+                                                
+                                                    //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                        //faz o hash do texto cifrado em AES
+                                                        hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                        resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                        //cifra o hash com RSA
+                                                        hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                        saida.println(hashCifradaComRSA);
+                                                //-------------------------------------------------------------------------------------------------
+                                            }
+                                            
+                                            else if (valor <= 0) {
+                                                //-------------------------------------------------------------------------------------------------
+                                                    //Envia para cliente mensagem cifrada em AES
+                                                    doubleParaTexto = sistema.saldo(conta)+"";
+
+                                                    try {
+                                                        cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
+                                                    } catch (Exception e) {
+                                                        // TODO Auto-generated catch block
+                                                        e.printStackTrace();
+                                                    }
+
+                                                    saida.println(cifrado);
+                    
+                                                
+                                                    //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                        //faz o hash do texto cifrado em AES
+                                                        hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                        resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                        //cifra o hash com RSA
+                                                        hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                        saida.println(hashCifradaComRSA);
+                                                //-------------------------------------------------------------------------------------------------
+                                            
+                                            }
+                                            }
+
+                                            //transferencia
+                                            if (escolha == 3) {
+                                                    //*******************************************************************************************************
+                                                        //Código para receber mensagens do servidor
+                                                            String numContaDestino = "";
+                                                            String[] contaEValor;
+                                                            //recebe mensagem AES
+                                                            MensagemAES = s.nextLine();
+
+                                                            //recebe mensagem hash do aes cifrada com RSA
+                                                            MensagemRSAComHash = s.nextLine();
+
+                                                                //Decifra RSA
+                                                                //hash da mensagem
+                                                                decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
+                                                            
+                                                                //faz o hash da mensagem recebida AES
+                                                                hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+
+                                                                //armazena o resultado do hash no formato String
+                                                                resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                                //verifica se os hash são iguais
+                                                                if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
+                                                                    //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
+                                                                    
+                                                                        //Decifra AES
+                                                                            try {
+                                                                                decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
+
+                                                                                contaEValor = decifraAESdaMensagem.split(" ");
+
+                                                                                numContaDestino = contaEValor[0];
+                                                                                valor = Double.parseDouble(contaEValor[1]);
+                                                                            } catch (Exception e) {
+                                                                                
+                                                                                e.printStackTrace();
+                                                                            }
+                                                                    
+                                                                }
+
+                                                    //******************************************************************************************************
+                                        
+                                                //se o valor da transferencia for menor ou igual ao saldo da conta de origem
+                                                if (sistema.saldo(conta) >= valor) {
+                                                    //-------------------------------------------------------------------------------------------------
+                                                        //Envia para cliente mensagem cifrada em AES
+                                                        doubleParaTexto = sistema.transferência(conta, numContaDestino, valor);
+
+                                                        try {
+                                                            cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
+                                                        } catch (Exception e) {
+                                                            // TODO Auto-generated catch block
+                                                            e.printStackTrace();
+                                                        }
+
+                                                        saida.println(cifrado);
+                        
+                                                    
+                                                        //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                            //faz o hash do texto cifrado em AES
+                                                            hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                            //cifra o hash com RSA
+                                                            hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                            saida.println(hashCifradaComRSA);
+                                                    //-------------------------------------------------------------------------------------------------
+                                                }
+                                                else{
+                                                    //-------------------------------------------------------------------------------------------------
+                                                        //Envia para cliente mensagem cifrada em AES
+                                                        doubleParaTexto = " ##Saldo insuficiente##";
+
+                                                        try {
+                                                            cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
+                                                        } catch (Exception e) {
+                                                            // TODO Auto-generated catch block
+                                                            e.printStackTrace();
+                                                        }
+
+                                                        saida.println(cifrado);
+                        
+                                                    
+                                                        //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                            //faz o hash do texto cifrado em AES
+                                                            hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                            //cifra o hash com RSA
+                                                            hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                            saida.println(hashCifradaComRSA);
+                                                    //-------------------------------------------------------------------------------------------------
+                                                    }   
+                                            }
+
+                                            //saldo
+                                            if (escolha == 4) {
+
+                                                
+                                                    //-------------------------------------------------------------------------------------------------
+                                                        //Envia para cliente mensagem cifrada em AES
+                                                        doubleParaTexto = sistema.saldo(conta)+"";
+
+                                                        try {
+                                                            cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
+                                                        } catch (Exception e) {
+                                                            // TODO Auto-generated catch block
+                                                            e.printStackTrace();
+                                                        }
+
+                                                        saida.println(cifrado);
+                        
+                                                    
+                                                        //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                            //faz o hash do texto cifrado em AES
+                                                            hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                            resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                            //cifra o hash com RSA
+                                                            hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                            saida.println(hashCifradaComRSA);
+                                                    //-------------------------------------------------------------------------------------------------
+                                            }
+
+                                            if (escolha == 6) {
                                                 
                                             }
 
-                                //******************************************************************************************************
+                                        }
 
-                                //saque
-                                if (escolha == 1) {
+                                        
+                                    }
+
+                                    //caso o login falhe
+                                    else{
+
+                                        
+                                        //enviar pro cliente um número para confimar que o login foi bem sucedido.
+                                        confimacao = 1;
+                                        //-------------------------------------------------------------------------------------------------
+                                            //Envia para cliente mensagem cifrada em AES
+                                            inteiroParaTexto = confimacao+"";
+
+                                            try {
+                                                cifrado = criptoAES.cifrar(inteiroParaTexto, chaveAES);
+                                            } catch (Exception e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
+                                            }
+
+                                            saida.println(cifrado);
+            
+                                        
+                                            //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
+
+                                                //faz o hash do texto cifrado em AES
+                                                hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
+                                                resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
+
+                                                //cifra o hash com RSA
+                                                hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
+                                                saida.println(hashCifradaComRSA);
+                                        //-------------------------------------------------------------------------------------------------
+
+
+                                    }
+
                                     
                                     
-                                        //*******************************************************************************************************
-                                            //Código para receber mensagens do servidor
-                                        
-                                                //recebe mensagem AES
-                                                MensagemAES = s.nextLine();
+                            }
 
-                                                //recebe mensagem hash do aes cifrada com RSA
-                                                MensagemRSAComHash = s.nextLine();
+                            //cria conta
+                            if (entrada == 2) {
+                                    
+                            }
 
-                                                    //Decifra RSA
-                                                    //hash da mensagem
-                                                    decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
-                                                
-                                                    //faz o hash da mensagem recebida AES
-                                                    hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
-
-                                                    //armazena o resultado do hash no formato String
-                                                    resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
-
-                                                    //verifica se os hash são iguais
-                                                    if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
-                                                        //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
-                                                        
-                                                            //Decifra AES
-                                                                try {
-                                                                    decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
-                                                                    valor = Double.parseDouble(decifraAESdaMensagem); 
-                                                                } catch (Exception e) {
-                                                                    
-                                                                    e.printStackTrace();
-                                                                }
-                                                        
-                                                    }
-
-                                        //******************************************************************************************************
-
-                                        //verifica se o valor é menor que o saldo atual
-                                        if (valor <= sistema.saldo(conta)) {
-                                            sistema.saque(conta, valor);
-
-                                            //retornar saldo atual para servidor
-                                            //-------------------------------------------------------------------------------------------------
-                                                //Envia para cliente mensagem cifrada em AES
-                                                doubleParaTexto = sistema.saldo(conta)+"";
-
-                                                try {
-                                                    cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
-                                                } catch (Exception e) {
-                                                    // TODO Auto-generated catch block
-                                                    e.printStackTrace();
-                                                }
-
-                                                saida.println(cifrado);
+                            //finaliza sessão
+                            if (entrada == 3) {
+                                    conexaoTrocaDeMensagens = false;
+                            }
                 
-                                            
-                                                //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
 
-                                                    //faz o hash do texto cifrado em AES
-                                                    hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
-                                                    resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
-
-                                                    //cifra o hash com RSA
-                                                    hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
-                                                    saida.println(hashCifradaComRSA);
-                                            //-------------------------------------------------------------------------------------------------
-                                        
-                                        }else if (valor > sistema.saldo(conta)) {
-                                            //-------------------------------------------------------------------------------------------------
-                                                //Envia para cliente mensagem cifrada em AES
-                                                doubleParaTexto = sistema.saldo(conta)+"";
-
-                                                try {
-                                                    cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
-                                                } catch (Exception e) {
-                                                    // TODO Auto-generated catch block
-                                                    e.printStackTrace();
-                                                }
-
-                                                saida.println(cifrado);
-                
-                                            
-                                                //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
-
-                                                    //faz o hash do texto cifrado em AES
-                                                    hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
-                                                    resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
-
-                                                    //cifra o hash com RSA
-                                                    hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
-                                                    saida.println(hashCifradaComRSA);
-                                            //-------------------------------------------------------------------------------------------------
-                                        }
-                                }
-
-                                //depósito
-                                if (escolha == 2) {
-                                    //*******************************************************************************************************
-                                            //Código para receber mensagens do servidor
-                                        
-                                                //recebe mensagem AES
-                                                MensagemAES = s.nextLine();
-
-                                                //recebe mensagem hash do aes cifrada com RSA
-                                                MensagemRSAComHash = s.nextLine();
-
-                                                    //Decifra RSA
-                                                    //hash da mensagem
-                                                    decifraRSAdaMensagem = criptoRSA.desencriptar(MensagemRSAComHash, criptoRSA.enviarD(), nChaveServidor);
-                                                
-                                                    //faz o hash da mensagem recebida AES
-                                                    hashDoTextoCifradoAES = ImplSHA3.resumo(MensagemAES.getBytes(ImplSHA3.UTF_8), algoritmoHash);
-
-                                                    //armazena o resultado do hash no formato String
-                                                    resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
-
-                                                    //verifica se os hash são iguais
-                                                    if (resultadoDoHash.equals(decifraRSAdaMensagem)) {
-                                                        //como os hash bateram, entao agora eu posso decifrar a mensagem AES e usa-la
-                                                        
-                                                            //Decifra AES
-                                                                try {
-                                                                    decifraAESdaMensagem = criptoAES.decifrar(MensagemAES, chaveAES);
-                                                                    valor = Double.parseDouble(decifraAESdaMensagem); 
-                                                                } catch (Exception e) {
-                                                                    
-                                                                    e.printStackTrace();
-                                                                }
-                                                        
-                                                    }
-
-                                        //******************************************************************************************************
-
-                                        if (valor > 0) {
-                                            //realiza depósito
-                                            sistema.deposito(conta, valor);
-
-                                            
-                                            //retornar saldo atual para servidor
-                                            //-------------------------------------------------------------------------------------------------
-                                                //Envia para cliente mensagem cifrada em AES
-                                                doubleParaTexto = sistema.saldo(conta)+"";
-
-                                                try {
-                                                    cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
-                                                } catch (Exception e) {
-                                                    // TODO Auto-generated catch block
-                                                    e.printStackTrace();
-                                                }
-
-                                                saida.println(cifrado);
-                
-                                            
-                                                //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
-
-                                                    //faz o hash do texto cifrado em AES
-                                                    hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
-                                                    resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
-
-                                                    //cifra o hash com RSA
-                                                    hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
-                                                    saida.println(hashCifradaComRSA);
-                                            //-------------------------------------------------------------------------------------------------
-                                        }
-                                        
-                                        else if (valor <= 0) {
-                                            //-------------------------------------------------------------------------------------------------
-                                                //Envia para cliente mensagem cifrada em AES
-                                                doubleParaTexto = sistema.saldo(conta)+"";
-
-                                                try {
-                                                    cifrado = criptoAES.cifrar(doubleParaTexto, chaveAES);
-                                                } catch (Exception e) {
-                                                    // TODO Auto-generated catch block
-                                                    e.printStackTrace();
-                                                }
-
-                                                saida.println(cifrado);
-                
-                                            
-                                                //Envia para cliente o hash cifrado em RSA, da mensagem cifrada em AES
-
-                                                    //faz o hash do texto cifrado em AES
-                                                    hashDoTextoCifradoAES = ImplSHA3.resumo(cifrado.getBytes(ImplSHA3.UTF_8), algoritmoHash);
-                                                    resultadoDoHash = ImplSHA3.bytes2Hex(hashDoTextoCifradoAES);
-
-                                                    //cifra o hash com RSA
-                                                    hashCifradaComRSA = criptoRSA.encriptar(resultadoDoHash, eCliente, nCliente);
-                                                    saida.println(hashCifradaComRSA);
-                                            //-------------------------------------------------------------------------------------------------
-                                        
-                                        }
-                                }
-                    }
-
-                    //cria conta
-                    if (entrada == 2) {
-                            
-                    }
-
-                    //finaliza sessão
-                    if (entrada == 3) {
-                            conexaoTrocaDeMensagens = false;
-                    }
             }
                 
             saida.close();
